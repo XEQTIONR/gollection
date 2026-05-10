@@ -2,34 +2,46 @@ package gollection
 
 import (
 	"errors"
+	"maps"
 	"math/rand"
 	"slices"
-	"sort"
 )
 
+func (c *Collection[T]) All() []T {
+	return []T(*c)
+}
+
+func (c *Collection[T]) At(index int) *T {
+	items := c.All()
+	if index < 0 || index >= c.Length() {
+		return nil
+	}
+	return &items[index]
+}
+
 func (c *Collection[T]) After(item T) (*T, error) {
-	for i := range c.items {
-		if c.items[i] == item {
-			if i+1 >= len(c.items) {
+	items := c.All()
+
+	for i, v := range items {
+		if v == item {
+			if i+1 >= c.Length() {
 				return nil, errors.New("Last element")
 			}
-			return &c.items[i+1], nil
+			return &items[i+1], nil
 		}
 	}
 	return nil, errors.New("Not found")
 }
 
-func (c *Collection[T]) All(item T) []T {
-	return c.items
-}
-
 func (c *Collection[T]) Before(item T) (*T, error) {
-	for i := range c.items {
-		if c.items[i] == item {
+	items := c.All()
+
+	for i := range items {
+		if items[i] == item {
 			if i-1 < 0 {
 				return nil, errors.New("First element")
 			}
-			return &c.items[i-1], nil
+			return &items[i-1], nil
 		}
 	}
 	return nil, errors.New("Not found")
@@ -38,62 +50,66 @@ func (c *Collection[T]) Before(item T) (*T, error) {
 func (c *Collection[T]) Chunk(size int) ([]Collection[T], error) {
 
 	chunks := make([]Collection[T], 0)
+	items := c.All()
 
 	if size <= 0 {
 		return nil, errors.New("size must be greater than 0")
 	}
-	for i := 0; i < len(c.items); i += size {
+	for i := 0; i < len(items); i += size {
 		end := i + size
-		if end > len(c.items) {
-			end = len(c.items)
+		if end > len(items) {
+			end = len(items)
 		}
-		chunks = append(chunks, InitFromSlice(c.items[i:end]))
+		chunks = append(chunks, InitFromSlice(items[i:end]))
 	}
 	return chunks, nil
 }
 
 func (c *Collection[T]) ChunkBy(fn func(T) bool) ([]Collection[T], error) {
+	items := c.All()
 	chunks := make([]Collection[T], 0)
-	for i := range c.items {
-		if fn(c.items[i]) {
-			chunks = append(chunks, InitFromSlice([]T{c.items[i]}))
+	for i := range items {
+		if fn(items[i]) {
+			chunks = append(chunks, InitFromSlice([]T{items[i]}))
 		}
 	}
 	return chunks, nil
 }
 
 func (c *Collection[T]) ChunkUntil(fn func(T) bool) ([]Collection[T], error) {
+	items := c.All()
 	chunks := make([]Collection[T], 0)
-	for i := range c.items {
-		if fn(c.items[i]) {
-			chunks = append(chunks, Collection[T]{items: []T{c.items[i]}})
+	for i := range items {
+		if fn(items[i]) {
+			chunks = append(chunks, Collection[T]{items[i]})
 		}
 	}
 	return chunks, nil
 }
 
 func (c *Collection[T]) ChunkWhile(fn func(T) bool) ([]Collection[T], error) {
+	items := c.All()
 	chunks := make([]Collection[T], 0)
-	for i := range c.items {
-		if fn(c.items[i]) {
-			chunks = append(chunks, Collection[T]{items: []T{c.items[i]}})
+	for i := range items {
+		if fn(items[i]) {
+			chunks = append(chunks, Collection[T]{items[i]})
 		}
 	}
 	return chunks, nil
 }
 
 func (c *Collection[T]) Contains(item T) bool {
-	return slices.Contains(c.items, item)
+	return slices.Contains(c.All(), item)
 }
 
 func (c *Collection[T]) Count() int {
-	return len(c.items)
+	return len(c.All())
 }
 
 func (c *Collection[T]) CountBy(fn func(T) bool) int {
 	count := 0
-	for i := range c.items {
-		if fn(c.items[i]) {
+	for _, v := range c.All() {
+		if fn(v) {
 			count++
 		}
 	}
@@ -102,8 +118,8 @@ func (c *Collection[T]) CountBy(fn func(T) bool) int {
 
 func (c *Collection[T]) Counts() map[T]int {
 	counts := make(map[T]int)
-	for i := range c.items {
-		counts[c.items[i]]++
+	for _, v := range c.All() {
+		counts[v]++
 	}
 	return counts
 }
@@ -111,16 +127,17 @@ func (c *Collection[T]) Counts() map[T]int {
 // O(n**2) time complexity
 func (c *Collection[T]) Diff(other Collection[T]) []T {
 	diff := make([]T, 0)
-	for i := range c.items {
-		if !slices.Contains(other.items, c.items[i]) {
-			diff = append(diff, c.items[i])
+	items := c.All()
+	for i := range items {
+		if !slices.Contains(other.All(), items[i]) {
+			diff = append(diff, items[i])
 		}
 	}
 	return diff
 }
 
 func (c *Collection[T]) DoesntContain(item T) bool {
-	return !slices.Contains(c.items, item)
+	return !slices.Contains(c.All(), item)
 }
 
 func (c *Collection[T]) DoesntHave(item T) bool {
@@ -140,8 +157,8 @@ func (c *Collection[T]) Duplicates() map[T]int {
 }
 
 func (c *Collection[T]) Every(fn func(T) bool) bool {
-	for i := range c.items {
-		if !fn(c.items[i]) {
+	for _, v := range c.All() {
+		if !fn(v) {
 			return false
 		}
 	}
@@ -149,20 +166,22 @@ func (c *Collection[T]) Every(fn func(T) bool) bool {
 }
 
 func (c *Collection[T]) Filter(fn func(T) bool) []T {
+	items := c.All()
 	filtered := make([]T, 0)
-	for i := range c.items {
-		if fn(c.items[i]) {
-			filtered = append(filtered, c.items[i])
+	for i := range items {
+		if fn(items[i]) {
+			filtered = append(filtered, items[i])
 		}
 	}
 	return filtered
 }
 
 func (c *Collection[T]) First() (*T, error) {
-	if len(c.items) == 0 {
+	items := c.All()
+	if len(items) == 0 {
 		return nil, errors.New("empty collection")
 	}
-	return &c.items[0], nil
+	return &items[0], nil
 }
 
 func (c *Collection[T]) Has(item T) bool {
@@ -191,84 +210,77 @@ func (c *Collection[T]) HasAll(items ...T) bool {
 
 // O(n**2) time complexity
 func (c *Collection[T]) Intersect(other Collection[T]) Collection[T] {
+	items := c.All()
 	intersect := make([]T, 0)
-	for i := range c.items {
-		if slices.Contains(other.items, c.items[i]) {
-			intersect = append(intersect, c.items[i])
+	for i := range items {
+		if slices.Contains(other.All(), items[i]) {
+			intersect = append(intersect, items[i])
 		}
 	}
-	return Collection[T]{items: intersect}
+	return Collection[T](intersect)
 }
 
 func (c *Collection[T]) Last() (*T, error) {
-	if len(c.items) == 0 {
+	items := c.All()
+	if len(items) == 0 {
 		return nil, errors.New("empty collection")
 	}
-	return &c.items[len(c.items)-1], nil
+	return &items[len(items)-1], nil
 }
 
 func (c *Collection[T]) Length() int {
-	return len(c.items)
+	return c.Count()
 }
 
 func (c *Collection[T]) Map(fn func(T) T) *Collection[T] {
+	items := c.All()
 	mapped := make([]T, 0)
-	for i := range c.items {
-		mapped = append(mapped, fn(c.items[i]))
+	for i := range items {
+		mapped = append(mapped, fn(items[i]))
 	}
-	return &Collection[T]{items: mapped}
+
+	*c = InitFromSlice(mapped)
+	return c
 }
 
-func (c *Collection[T]) Max() (*T, error) {
-	if len(c.items) == 0 {
-		return nil, errors.New("empty collection")
-	}
-	return &c.items[len(c.items)-1], nil
-}
+func (c *Collection[T]) Mode() *T {
+	items := c.Counts()
 
-func (c *Collection[T]) Median() (*T, error) {
-	if len(c.items) == 0 {
-		return nil, errors.New("empty collection")
-	}
-	return &c.items[len(c.items)/2], nil
-}
+	var mode *T
+	highest := -1
 
-func (c *Collection[T]) Min() (*T, error) {
-	if len(c.items) == 0 {
-		return nil, errors.New("empty collection")
+	for k, v := range items {
+		if v > highest {
+			*mode = k
+		}
 	}
-	return &c.items[0], nil
-}
-
-func (c *Collection[T]) Mode() (*T, error) {
-	if len(c.items) == 0 {
-		return nil, errors.New("empty collection")
-	}
-	return &c.items[0], nil
+	return mode
 }
 
 func (c *Collection[T]) Multiply(multiplier int) *Collection[T] {
-	if len(c.items) == 0 {
+	items := c.All()
+	if len(items) == 0 {
 		return c
 	}
 
-	for i := len(c.items) - 1; i >= 0; i-- {
-		repeat := slices.Repeat([]T{c.items[i]}, multiplier-1)
-		c.items = slices.Insert(c.items, i, repeat...)
+	for i := len(items) - 1; i >= 0; i-- {
+		repeat := slices.Repeat([]T{items[i]}, multiplier-1)
+		items = slices.Insert(items, i, repeat...)
 	}
 
 	return c
 }
 
 func (c *Collection[T]) Nth(n int) (*T, error) {
+	items := c.All()
 	if n < 0 {
 		return nil, errors.New("n must be positive")
 	}
 
-	if n >= len(c.items) {
+	if n >= len(items) {
 		return nil, errors.New("n is out of range")
 	}
-	return &c.items[n], nil
+	return &items[n], nil
 }
 
 func (c *Collection[T]) PadLeft(length int, value T) *Collection[T] {
@@ -277,8 +289,12 @@ func (c *Collection[T]) PadLeft(length int, value T) *Collection[T] {
 	}
 
 	newSlice := slices.Repeat([]T{value}, length)
-	c = &Collection[T]{items: append(newSlice, c.items...)}
+	appended := append(newSlice, c.All()...)
+
+	*c = InitFromSlice(appended)
+
 	return c
+
 }
 
 func (c *Collection[T]) PadRight(length int, value T) *Collection[T] {
@@ -287,125 +303,141 @@ func (c *Collection[T]) PadRight(length int, value T) *Collection[T] {
 	}
 
 	newSlice := slices.Repeat([]T{value}, length)
-	c = &Collection[T]{items: append(c.items, newSlice...)}
+	appended := append([]T{}, c.All()...)
+	appended = append(appended, newSlice...)
+
+	*c = Collection[T](appended)
 
 	return c
-}
-
-func (c *Collection[T]) Percentage(fn func(T) bool) float64 {
-	count := c.CountBy(fn)
-	return float64(count) / float64(len(c.items)) * 100
 }
 
 func (c *Collection[T]) Prepend(item ...T) *Collection[T] {
 	newSlice := []T{}
-	newSlice = append(newSlice, c.items...)
+	newSlice = append(newSlice, c.All()...)
 	newSlice = append(newSlice, item...)
-	c.items = newSlice
+	*c = newSlice
 	return c
 }
 
 func (c *Collection[T]) Pop() (*T, error) {
-	if len(c.items) == 0 {
+	if c.Length() == 0 {
 		return nil, errors.New("empty collection")
 	}
-	return &c.items[len(c.items)-1], nil
+	ret := c.At(c.Length() - 1)
+
+	*c = c.All()[:c.Length()-1]
+	return ret, nil
 }
 
 func (c *Collection[T]) Push(item ...T) *Collection[T] {
-	c.items = append(c.items, item...)
+	*c = append(c.All(), item...)
 	return c
 }
 
 func (c *Collection[T]) Random() (*T, error) {
-	if len(c.items) == 0 {
+	if c.Length() == 0 {
 		return nil, errors.New("empty collection")
 	}
-	return &c.items[rand.Intn(len(c.items))], nil
+	return c.At(rand.Intn(c.Length())), nil
 }
 
 func (c *Collection[T]) Range(start int, end int) *Collection[T] {
+	collection := InitFromSlice(c.All()[start:end])
 
-	return &Collection[T]{items: c.items[start:end]}
+	return &collection
 }
 
 func (c *Collection[T]) Reject(fn func(T) bool) *Collection[T] {
 	rejected := make([]T, 0)
-	for i := range c.items {
-		if !fn(c.items[i]) {
-			rejected = append(rejected, c.items[i])
+	for _, v := range c.All() {
+		if !fn(v) {
+			rejected = append(rejected, v)
 		}
 	}
-	return &Collection[T]{items: rejected}
+
+	collection := InitFromSlice(rejected)
+
+	return &collection
 }
 
 func (c *Collection[T]) Reverse() *Collection[T] {
 	reversed := make([]T, 0)
-	for i := len(c.items) - 1; i >= 0; i-- {
-		reversed = append(reversed, c.items[i])
+	for i := c.Length() - 1; i >= 0; i-- {
+		reversed = append(reversed, *c.At(i))
 	}
-	return &Collection[T]{items: reversed}
+
+	collection := InitFromSlice(reversed)
+
+	return &collection
 }
 
 func (c *Collection[T]) Search(item T) int {
-	return slices.Index(c.items, item)
+	return slices.Index(c.All(), item)
 }
 
 func (c *Collection[T]) Shift() (*T, error) {
-	if len(c.items) == 0 {
+	if c.Length() == 0 {
 		return nil, errors.New("empty collection")
 	}
 
-	ret := c.items[0]
-	c.items = c.items[1:]
+	ret := c.At(0)
+	*c = c.All()[1:]
 
-	return &ret, nil
+	return ret, nil
 }
 
 func (c *Collection[T]) Shuffle() *Collection[T] {
 	shuffled := make([]T, 0)
-	for i := range c.items {
-		shuffled = append(shuffled, c.items[i])
+	for i := range c.All() {
+		shuffled = append(shuffled, *c.At(i))
 	}
-	return &Collection[T]{items: shuffled}
+
+	collection := InitFromSlice(shuffled)
+
+	return &collection
 }
 
 func (c *Collection[T]) Skip(n int) *Collection[T] {
-	return &Collection[T]{items: c.items[n:]}
+	collection := InitFromSlice(c.All()[n:])
+	return &collection
 }
 
 func (c *Collection[T]) SkipUntil(fn func(T) bool) *Collection[T] {
-	for i := range c.items {
-		if fn(c.items[i]) {
-			return &Collection[T]{items: c.items[i:]}
+	for i := range c.All() {
+		if fn(*c.At(i)) {
+			collection := InitFromSlice(c.All()[i:])
+			return &collection
 		}
 	}
 	return c
 }
 
 func (c *Collection[T]) SkipWhile(fn func(T) bool) *Collection[T] {
-	for i := range c.items {
-		if !fn(c.items[i]) {
-			return &Collection[T]{items: c.items[i:]}
+	for i := range c.All() {
+		if !fn(*c.At(i)) {
+			collection := InitFromSlice(c.All()[i:])
+			return &collection
 		}
 	}
 	return c
 }
 
 func (c *Collection[T]) Slice(start int, end int) *Collection[T] {
-	return &Collection[T]{items: c.items[start:end]}
+	collection := InitFromSlice(c.All()[start:end])
+	return &collection
 }
 
 func (c *Collection[T]) Splice(start int, take int, items ...T) *Collection[T] {
-	return &Collection[T]{items: append(c.items[:start], append(items, c.items[start+take:]...)...)}
+	collection := InitFromSlice(append(c.All()[:start], append(items, c.All()[start+take:]...)...))
+	return &collection
 }
 
 func (c *Collection[T]) Split(n int) []Collection[T] {
 
 	chunks := make([]Collection[T], 0)
 
-	for i := 0; i < len(c.items)/n; i += n {
-		chunks = append(chunks, Collection[T]{items: c.items[i : i+n]})
+	for i := 0; i < c.Length()/n; i += n {
+		chunks = append(chunks, InitFromSlice(c.All()[i:i+n]))
 	}
 	return chunks
 }
@@ -414,56 +446,37 @@ func (c *Collection[T]) SplitInto(n int) []Collection[T] {
 	return c.Split(c.Length() / n)
 }
 
-func (c *OrderableCollection[T]) Sort(desc bool) *OrderableCollection[T] {
-	sorted := make([]T, 0)
-	for i := range c.items {
-		sorted = append(sorted, c.items[i])
-	}
-	sort.Slice(sorted, func(i, j int) bool {
-		if desc {
-			return sorted[i] > sorted[j]
-		}
-		return sorted[i] < sorted[j]
-	})
-	return &OrderableCollection[T]{items: sorted}
-}
-
-func (c *OrderableCollection[T]) SortAsc() *OrderableCollection[T] {
-	return c.Sort(false)
-}
-
-func (c *OrderableCollection[T]) SortDesc() *OrderableCollection[T] {
-	return c.Sort(true)
-}
-
 func (c *Collection[T]) Take(n int) *Collection[T] {
-	return &Collection[T]{items: c.items[:n]}
+	collection := InitFromSlice(c.All()[:n])
+	return &collection
 }
 
 func (c *Collection[T]) TakeUntil(fn func(T) bool) *Collection[T] {
-	for i := range c.items {
-		if fn(c.items[i]) {
-			return &Collection[T]{items: c.items[:i]}
+	for _, v := range c.All() {
+		if fn(v) {
+			collection := InitFromSlice([]T{v})
+			return &collection
 		}
 	}
 	return c
 }
 
 func (c *Collection[T]) TakeWhile(fn func(T) bool) *Collection[T] {
-	for i := range c.items {
-		if !fn(c.items[i]) {
-			return &Collection[T]{items: c.items[:i]}
+	for _, v := range c.All() {
+		if !fn(v) {
+			collection := InitFromSlice([]T{v})
+			return &collection
 		}
 	}
 	return c
 }
 
-func (c *Collection[T]) Union(other Collection[T]) []T {
+func (c *Collection[T]) Union(other Collection[T]) *Collection[T] {
 	m := make(map[T]bool)
-	for _, v := range c.items {
+	for _, v := range c.All() {
 		m[v] = true
 	}
-	for _, v := range other.items {
+	for _, v := range other.All() {
 		m[v] = true
 	}
 
@@ -471,15 +484,22 @@ func (c *Collection[T]) Union(other Collection[T]) []T {
 	for v := range m {
 		union = append(union, v)
 	}
-	return union
+
+	collection := InitFromSlice(union)
+
+	return &collection
 }
 
 func (c *Collection[T]) Unique() *Collection[T] {
-	unique := make([]T, 0)
-	for i := range c.items {
-		if slices.Index(unique, c.items[i]) == -1 {
-			unique = append(unique, c.items[i])
+	unique := make(map[T]bool)
+
+	for _, v := range c.All() {
+		_, ok := unique[v]
+		if !ok {
+			unique[v] = true
 		}
 	}
-	return &Collection[T]{items: unique}
+
+	collection := InitFromSlice(slices.Collect(maps.Keys(unique)))
+	return &collection
 }
