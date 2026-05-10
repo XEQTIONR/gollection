@@ -3,16 +3,22 @@ package gollection
 import "cmp"
 
 type Collection[T comparable] struct {
-	Items []T
+	items []T
 }
 
 type OrderableCollection[T cmp.Ordered] struct {
-	Items []T
+	items []T
 }
 
 func Init[T comparable](items ...T) Collection[T] {
 	return Collection[T]{
-		Items: items,
+		items: items,
+	}
+}
+
+func InitOrderable[T cmp.Ordered](items ...T) OrderableCollection[T] {
+	return OrderableCollection[T]{
+		items: items,
 	}
 }
 
@@ -20,8 +26,18 @@ func Collect[T comparable](items ...T) Collection[T] {
 	return Init(items...)
 }
 
-func InitFromArray[T comparable](items []T) Collection[T] {
+func CollectOrderable[T cmp.Ordered](items ...T) OrderableCollection[T] {
+	return InitOrderable(items...)
+}
+
+func InitFromSlice[T comparable](items []T) Collection[T] {
 	return Collection[T]{
-		Items: items,
+		items: items,
+	}
+}
+
+func InitFromSliceOrderable[T cmp.Ordered](items []T) OrderableCollection[T] {
+	return OrderableCollection[T]{
+		items: items,
 	}
 }

@@ -9,7 +9,7 @@ import (
 func main() {
 
 	collection := gollection.Init[int](10, 20, 30, 40, 50)
-	collectionFromArray := gollection.InitFromArray[int]([]int{10, 20, 30, 40, 50})
+	collectionFromArray := gollection.InitFromSlice[int]([]int{10, 20, 30, 40, 50})
 
 	fmt.Println("Collection: ", collection, 1)
 	fmt.Println("Collection: ", collectionFromArray, 2)
