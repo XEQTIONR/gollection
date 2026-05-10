@@ -3,22 +3,9 @@ package gollection
 import (
 	"cmp"
 	"errors"
-	"maps"
 	"math/rand"
 	"slices"
 )
-
-func (c *OrderableCollection[T]) All() []T {
-	return []T(*c)
-}
-
-func (c *OrderableCollection[T]) At(index int) *T {
-	items := c.All()
-	if index < 0 || index >= c.Length() {
-		return nil
-	}
-	return &items[index]
-}
 
 func (c *OrderableCollection[T]) After(item T) (*T, error) {
 	items := c.All()
@@ -32,6 +19,26 @@ func (c *OrderableCollection[T]) After(item T) (*T, error) {
 		}
 	}
 	return nil, errors.New("Not found")
+}
+
+func (c *OrderableCollection[T]) All() []T {
+	return []T(*c)
+}
+
+func (c *OrderableCollection[T]) Append(items ...T) *OrderableCollection[T] {
+	newSlice := []T{}
+	newSlice = append(newSlice, c.All()...)
+	newSlice = append(newSlice, items...)
+	*c = newSlice
+	return c
+}
+
+func (c *OrderableCollection[T]) At(index int) *T {
+	items := c.All()
+	if index < 0 || index >= c.Length() {
+		return nil
+	}
+	return &items[index]
 }
 
 func (c *OrderableCollection[T]) Before(item T) (*T, error) {
@@ -71,7 +78,7 @@ func (c *OrderableCollection[T]) ChunkBy(fn func(T) bool) ([]OrderableCollection
 	chunks := make([]OrderableCollection[T], 0)
 	for i := range items {
 		if fn(items[i]) {
-			chunks = append(chunks, InitFromSliceOrderable([]T{items[i]}))
+			chunks = append(chunks, InitOrderable(items[i]))
 		}
 	}
 	return chunks, nil
@@ -82,7 +89,7 @@ func (c *OrderableCollection[T]) ChunkUntil(fn func(T) bool) ([]OrderableCollect
 	chunks := make([]OrderableCollection[T], 0)
 	for i := range items {
 		if fn(items[i]) {
-			chunks = append(chunks, InitFromSliceOrderable([]T{items[i]}))
+			chunks = append(chunks, InitOrderable(items[i]))
 		}
 	}
 	return chunks, nil
@@ -93,7 +100,7 @@ func (c *OrderableCollection[T]) ChunkWhile(fn func(T) bool) ([]OrderableCollect
 	chunks := make([]OrderableCollection[T], 0)
 	for i := range items {
 		if fn(items[i]) {
-			chunks = append(chunks, InitFromSliceOrderable([]T{items[i]}))
+			chunks = append(chunks, InitOrderable(items[i]))
 		}
 	}
 	return chunks, nil
@@ -191,18 +198,30 @@ func (c *OrderableCollection[T]) Has(item T) bool {
 
 // O(n**2) time complexity
 func (c *OrderableCollection[T]) HasAny(items ...T) bool {
+	cMap := make(map[T]bool)
+
+	for _, item := range c.All() {
+		cMap[item] = true
+	}
+
 	for _, item := range items {
-		if c.Contains(item) {
+		if _, ok := cMap[item]; ok {
 			return true
 		}
 	}
+
 	return false
 }
 
 // O(n**2) time complexity
 func (c *OrderableCollection[T]) HasAll(items ...T) bool {
+	cMap := make(map[T]bool)
+
+	for _, item := range c.All() {
+		cMap[item] = true
+	}
 	for _, item := range items {
-		if !c.Contains(item) {
+		if _, ok := cMap[item]; !ok {
 			return false
 		}
 	}
@@ -330,7 +349,7 @@ func (c *OrderableCollection[T]) PadLeft(length int, value T) *OrderableCollecti
 	newSlice := slices.Repeat([]T{value}, length)
 	appended := append(newSlice, c.All()...)
 
-	*c = OrderableCollection[T](appended)
+	*c = InitFromSliceOrderable(appended)
 
 	return c
 
@@ -345,15 +364,15 @@ func (c *OrderableCollection[T]) PadRight(length int, value T) *OrderableCollect
 	appended := append([]T{}, c.All()...)
 	appended = append(appended, newSlice...)
 
-	*c = OrderableCollection[T](appended)
+	*c = InitFromSliceOrderable(appended)
 
 	return c
 }
 
 func (c *OrderableCollection[T]) Prepend(item ...T) *OrderableCollection[T] {
 	newSlice := []T{}
-	newSlice = append(newSlice, c.All()...)
 	newSlice = append(newSlice, item...)
+	newSlice = append(newSlice, c.All()...)
 	*c = newSlice
 	return c
 }
@@ -516,7 +535,7 @@ func (c *OrderableCollection[T]) Take(n int) *OrderableCollection[T] {
 func (c *OrderableCollection[T]) TakeUntil(fn func(T) bool) *OrderableCollection[T] {
 	for _, v := range c.All() {
 		if fn(v) {
-			collection := InitFromSliceOrderable([]T{v})
+			collection := InitOrderable(v)
 			return &collection
 		}
 	}
@@ -526,7 +545,7 @@ func (c *OrderableCollection[T]) TakeUntil(fn func(T) bool) *OrderableCollection
 func (c *OrderableCollection[T]) TakeWhile(fn func(T) bool) *OrderableCollection[T] {
 	for _, v := range c.All() {
 		if !fn(v) {
-			collection := InitFromSliceOrderable([]T{v})
+			collection := InitOrderable(v)
 			return &collection
 		}
 	}
@@ -553,15 +572,14 @@ func (c *OrderableCollection[T]) Union(other OrderableCollection[T]) *OrderableC
 }
 
 func (c *OrderableCollection[T]) Unique() *OrderableCollection[T] {
-	unique := make(map[T]bool)
-
-	for _, v := range c.All() {
-		_, ok := unique[v]
-		if !ok {
-			unique[v] = true
+	counts := c.Counts()
+	unique := make([]T, 0)
+	for k, v := range counts {
+		if v == 1 {
+			unique = append(unique, k)
 		}
 	}
 
-	collection := InitFromSliceOrderable(slices.Collect(maps.Keys(unique)))
+	collection := InitFromSliceOrderable(unique)
 	return &collection
 }
