@@ -69,6 +69,9 @@ func ChunkBy[T any](c []T, fn func(T) bool) ([][]T, error) {
 			chunk = append(chunk, item)
 		}
 	}
+	if len(chunk) > 0 {
+		chunks = append(chunks, chunk)
+	}
 
 	return chunks, nil
 }
@@ -524,14 +527,14 @@ func Min[T cmp.Ordered](c []T) *T {
 	if len(c) == 0 {
 		return nil
 	}
-	max := c[0]
+	min := c[0]
 	for _, item := range c {
-		if item > max {
-			max = item
+		if item < min {
+			min = item
 		}
 	}
 
-	return &max
+	return &min
 }
 
 func Mode[T cmp.Ordered](c []T) *T {
@@ -540,16 +543,17 @@ func Mode[T cmp.Ordered](c []T) *T {
 	}
 	items := Counts(c)
 
-	var mode *T
+	var mode T
 	highest := -1
 
 	for k, v := range items {
 		if v > highest {
-			*mode = k
+			highest = v
+			mode = k
 		}
 	}
 
-	return mode
+	return &mode
 }
 
 func Multiply[T any](c []T, multiplier int) []T {
@@ -852,12 +856,17 @@ func Splice[T any](c []T, start int, take int, items ...T) []T {
 }
 
 func Split[T any](c []T, n int) [][]T {
-	chunks := make([][]T, 0)
-
-	for i := 0; i < Length(c)/n; i += n {
-		chunks = append(chunks, c[i:i+n])
+	if n <= 0 {
+		return nil
 	}
-
+	chunks := make([][]T, 0)
+	for i := 0; i < len(c); i += n {
+		end := i + n
+		if end > len(c) {
+			end = len(c)
+		}
+		chunks = append(chunks, c[i:end])
+	}
 	return chunks
 }
 
@@ -970,7 +979,7 @@ func WhereNot[T comparable, R comparable](c []map[T]R, key T, value R) []map[T]R
 func WhereNotBetween[T comparable, R cmp.Ordered](c []map[T]R, key T, min R, max R) []map[T]R {
 	whereBetween := make([]map[T]R, 0)
 	for _, obj := range c {
-		if obj[key] < min && obj[key] > max {
+		if obj[key] < min || obj[key] > max {
 			whereBetween = append(whereBetween, obj)
 		}
 	}
