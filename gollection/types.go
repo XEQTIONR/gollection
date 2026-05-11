@@ -1,14 +1,14 @@
 package gollection
 
-import "cmp"
-
-type CollectionInterface[T any] interface {
-	All() []T
-	Length() int
+type Numeric interface {
+	~int | ~int8 | ~int16 | ~int32 | ~int64 |
+		~uint | ~uint8 | ~uint16 | ~uint32 | ~uint64 | ~uintptr |
+		~float32 | ~float64
 }
 
-type Collection[T comparable] []T
+type SortDirection string
 
-type OrderableCollection[T cmp.Ordered] []T
-
-type ReflectableCollection[T map[string]any] []T
+const (
+	SortDirectionAsc  SortDirection = "asc"
+	SortDirectionDesc SortDirection = "desc"
+)
