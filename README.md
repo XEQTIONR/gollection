@@ -1,4 +1,5 @@
-<img width="2000" height="800" alt="-MFoM5FPAqKG8-qMra-qV_OIWXXpaT" src="https://github.com/user-attachments/assets/4b87d6f0-61e7-4e11-a48e-473c22c4936d" />
+<img width="2000" height="800" alt="GollectionBanner" src="https://github.com/user-attachments/assets/8bf18ccf-11ec-420f-81ca-de5bb96aad07" />
+
 
 # Gollection
 
@@ -7,13 +8,13 @@
 
 Gollection is a simple library that provides a convenient wrapper for working with collections of data. The word "Gollection" is a [portmanteau](https://en.wikipedia.org/wiki/Portmanteau) of the words "go" and "collection".
 
-**What is a collection?**
+#### What is a collection?
 A collection is a container of related data such as a slice or a map.
 
-**What can gollection do?**
+#### What can gollection do?
 It can manipulate, partition, transform, and get stats about collections.
 
-**But why?**
+#### But why?
 In an attempt to keep our go files small and clean.
 
 
