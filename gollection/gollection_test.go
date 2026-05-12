@@ -173,8 +173,8 @@ func TestDiff(t *testing.T) {
 }
 
 func TestDiffAssoc(t *testing.T) {
-	got := DiffAssoc([]int{1}, []string{"a"})
-	if len(got) != 1 || !mapsEqual(got[0], map[int]string{1: "a"}) {
+	got := DiffAssoc(map[string]int{"a": 1, "b": 3}, map[string]int{"a": 1, "b": 2})
+	if len(got) != 1 || !mapsEqual(got[0], map[string]int{"b": 3}) {
 		t.Fatalf("got %v", got)
 	}
 }
@@ -271,9 +271,9 @@ func TestFirstOrFail(t *testing.T) {
 }
 
 func TestFirstWhere(t *testing.T) {
-	rows := []map[string]any{{"id": 1}, {"id": 2}}
+	rows := []map[string]any{{"id": 1, "size": "S"}, {"id": 2, "size": "L"}}
 	got := FirstWhere(rows, "id", 2)
-	if got == nil || got["id"] != 2 {
+	if got == nil || got["id"] != 2 || got["size"] != "L" {
 		t.Fatalf("got %v", got)
 	}
 	if FirstWhere([]map[string]any{}, "id", 1) != nil {
@@ -282,14 +282,14 @@ func TestFirstWhere(t *testing.T) {
 }
 
 func TestFlatten(t *testing.T) {
-	if !slices.Equal(Flatten([][]int{{1}, {2}}), []int{1, 2}) {
+	if !slices.Equal(Flatten([][]int{{1}, {2, 3}}), []int{1, 2, 3}) {
 		t.Fatal()
 	}
 }
 
 func TestFlattenMap(t *testing.T) {
-	got := FlattenMap([]map[string]int{{"a": 1}})
-	if got["a"] != 1 {
+	got := FlattenMap([]map[string]int{{"a": 1}, {"b": 2, "a": 3}, {"a": 5, "c": 4}})
+	if got["a"] != 5 || got["b"] != 2 || got["c"] != 4 {
 		t.Fatal()
 	}
 }
@@ -302,50 +302,23 @@ func TestFlip(t *testing.T) {
 }
 
 func TestForget(t *testing.T) {
-	m := map[string]int{"a": 1, "b": 2}
-	Forget(m, "a")
-	if _, ok := m["a"]; ok || m["b"] != 2 {
+	m := map[string]int{"a": 1, "b": 2, "c": 3}
+	Forget(m, "a", "c")
+	if _, ok := m["a"]; ok {
+		t.Fatalf("got %v", m)
+	}
+
+	if _, ok := m["c"]; ok {
+		t.Fatalf("got %v", m)
+	}
+	if m["b"] != 2 {
 		t.Fatalf("got %v", m)
 	}
 }
-
 func TestGroupBy(t *testing.T) {
-	got := GroupBy([]int{1, 2, 3, 4}, func(n int) string {
-		if n%2 == 0 {
-			return "even"
-		}
-		return "odd"
-	})
-	if len(got["even"]) != 2 || len(got["odd"]) != 2 {
-		t.Fatalf("got %v", got)
-	}
-}
-
-func TestGroupByKeyValue(t *testing.T) {
-	got := GroupByKeyValue([]map[string]string{{"t": "a"}, {"t": "b"}, {"t": "a"}}, "t")
+	got := GroupBy([]map[string]string{{"t": "a"}, {"t": "b"}, {"t": "a"}}, "t")
 	if len(got["a"]) != 2 || len(got["b"]) != 1 {
 		t.Fatalf("got %v", got)
-	}
-}
-
-func TestHasAnyKeys(t *testing.T) {
-	if !HasAnyKeys(map[string]int{"a": 1}, "a", "b") {
-		t.Fatal("expected any key hit")
-	}
-	if HasAnyKeys(map[string]int{}, "x") {
-		t.Fatal("expected no keys")
-	}
-}
-
-func TestIndexOf(t *testing.T) {
-	if IndexOf([]int{3, 1}, 1) != 1 {
-		t.Fatal()
-	}
-}
-
-func TestIsEmpty(t *testing.T) {
-	if !IsEmpty([]int{}) || IsEmpty([]int{1}) {
-		t.Fatal()
 	}
 }
 
@@ -364,12 +337,47 @@ func TestHasAny(t *testing.T) {
 	}
 }
 
+func TestHasAnyKeys(t *testing.T) {
+	if !HasAnyKeys(map[string]int{"a": 1}, "a", "b") {
+		t.Fatal("expected any key hit")
+	}
+	if HasAnyKeys(map[string]int{}, "x") {
+		t.Fatal("expected no keys")
+	}
+}
+
 func TestHasEvery(t *testing.T) {
 	// Implementation: every element of c must be present in items.
 	if !HasEvery([]int{1, 2}, []int{1, 2, 3}) {
 		t.Fatal()
 	}
 	if HasEvery([]int{1, 4}, []int{1, 2, 3}) {
+		t.Fatal()
+	}
+}
+
+func TestHasOne(t *testing.T) {
+	// Implementation: every element of c must be present in items.
+	if !HasOne([]int{1, 4, 5}, []int{1, 2, 3}) {
+		t.Fatal()
+	}
+	if HasOne([]int{1, 2, 5}, []int{1, 2, 3}) {
+		t.Fatal()
+	}
+}
+
+func TestIndexOf(t *testing.T) {
+	if IndexOf([]string{"a", "b", "c"}, "b") != 1 {
+		t.Fatal()
+	}
+
+	if IndexOf([]string{"a", "b", "c"}, "d") != -1 {
+		t.Fatalf("got %d", IndexOf([]string{"a", "b", "c"}, "d"))
+	}
+}
+
+func TestIsEmpty(t *testing.T) {
+	if !IsEmpty([]int{}) || IsEmpty([]int{1}) {
 		t.Fatal()
 	}
 }
@@ -398,15 +406,15 @@ func TestIntersectByKeys(t *testing.T) {
 }
 
 func TestKeyBy(t *testing.T) {
-	got := KeyBy([]map[string]int{{"k": 1}, {"k": 2}}, "k")
-	if len(got[1]) != 1 || len(got[2]) != 1 {
+	got := KeyBy([]map[string]int{{"k": 1}, {"k": 2, "a": 3}, {"k": 2, "b": 4}}, "k")
+	if len(got[1]) != 1 || len(got[2]) != 2 {
 		t.Fatalf("got %v", got)
 	}
 }
 
 func TestLast(t *testing.T) {
-	v := Last([]int{1, 2, 3, 2}, func(n, i int) bool { return n == 2 })
-	if v == nil || *v != 2 {
+	v := Last([]int{1, 2, 3, 4}, func(n, i int) bool { return n >= 2 })
+	if v == nil || *v != 4 {
 		t.Fatalf("got %v", v)
 	}
 	if Last([]int{1}, func(int, int) bool { return false }) != nil {
@@ -474,6 +482,14 @@ func TestMax(t *testing.T) {
 		t.Fatal()
 	}
 }
+func TestMode(t *testing.T) {
+	if *Mode([]int{1, 2, 1, 2, 3, 2}) != 2 {
+		t.Fatal()
+	}
+	if Mode([]int{}) != nil {
+		t.Fatal()
+	}
+}
 
 func TestMin(t *testing.T) {
 	if *Min([]int{3, 1, 2}) != 1 {
@@ -484,18 +500,9 @@ func TestMin(t *testing.T) {
 	}
 }
 
-func TestMode(t *testing.T) {
-	if *Mode([]int{1, 1, 2, 2, 2, 3}) != 2 {
-		t.Fatal()
-	}
-	if Mode([]int{}) != nil {
-		t.Fatal()
-	}
-}
-
 func TestMultiply(t *testing.T) {
-	got := Multiply([]int{1, 2}, 2)
-	if len(got) != 4 {
+	got := Multiply([]int{1, 2}, 3)
+	if len(got) != 6 {
 		t.Fatalf("got %v len %d", got, len(got))
 	}
 	if slices.Equal(Multiply([]int{}, 3), []int{}) == false {
@@ -522,8 +529,8 @@ func TestNthFromLast(t *testing.T) {
 }
 
 func TestOnly(t *testing.T) {
-	got := Only([]map[string]int{{"a": 1, "b": 2}}, "a")
-	if len(got) != 1 || got[0]["a"] != 1 || len(got[0]) != 1 {
+	got := Only([]map[string]int{{"a": 1, "b": 2}, {"a": 3, "b": 4}}, "a")
+	if len(got) != 2 || got[0]["a"] != 1 || got[1]["a"] != 3 || len(got[0]) != 1 || len(got[1]) != 1 {
 		t.Fatalf("got %v", got)
 	}
 }
@@ -549,8 +556,13 @@ func TestPadRight(t *testing.T) {
 }
 
 func TestPartition(t *testing.T) {
-	a, b := Partition([]int{1, 2, 3, 4}, func(n int) bool { return n%2 == 0 })
+	a, b := Partition([]int{1, 2, 3, 4}, func(i, n int) bool { return n%2 == 0 })
 	if !slices.Equal(sortedInts(a), []int{2, 4}) || !slices.Equal(sortedInts(b), []int{1, 3}) {
+		t.Fatalf("got %v %v", a, b)
+	}
+
+	a, b = Partition([]int{1, 2, 3, 4}, func(i, n int) bool { return i < 2 })
+	if !slices.Equal(sortedInts(a), []int{1, 2}) || !slices.Equal(sortedInts(b), []int{3, 4}) {
 		t.Fatalf("got %v %v", a, b)
 	}
 }
@@ -630,6 +642,13 @@ func TestReduce(t *testing.T) {
 	}
 }
 
+func TestReduceWithIndex(t *testing.T) {
+	sum := ReduceWithIndex([]int{1, 2, 3}, func(acc, n, i int) int { return acc + i }, 0)
+	if sum != 3 {
+		t.Fatal()
+	}
+}
+
 func TestReject(t *testing.T) {
 	got := Reject([]int{1, 2, 3}, func(n int) bool { return n == 2 })
 	if !slices.Equal(got, []int{1, 3}) {
@@ -637,10 +656,16 @@ func TestReject(t *testing.T) {
 	}
 }
 
+func TestRejectWithIndex(t *testing.T) {
+	got := RejectWithIndex([]int{1, 2, 3}, func(n, i int) bool { return i == 2 })
+	if !slices.Equal(got, []int{1, 2}) {
+		t.Fatalf("got %v", got)
+	}
+}
 func TestReplace(t *testing.T) {
-	c := []int{1, 2, 3}
-	got := Replace(c, map[int]int{1: 9})
-	if got[1] != 9 {
+	c := []int{1, 2, 3, 4, 5}
+	got := Replace(c, map[int]int{1: 9, 3: 10})
+	if !slices.Equal(got, []int{1, 9, 3, 10, 5}) {
 		t.Fatalf("got %v", got)
 	}
 }
@@ -659,8 +684,8 @@ func TestReverseMap(t *testing.T) {
 }
 
 func TestSelect(t *testing.T) {
-	got := Select([]map[string]int{{"a": 1, "b": 2}}, "b")
-	if len(got) != 1 || got[0]["b"] != 2 || len(got[0]) != 1 {
+	got := Select([]map[string]any{{"a": 1, "b": "x", "c": 2.0}, {"a": 2, "b": "y", "c": 1.5}}, "a", "b")
+	if len(got) != 2 || got[0]["a"] != 1 || got[0]["b"] != "x" || got[1]["a"] != 2 || got[1]["b"] != "y" {
 		t.Fatalf("got %v", got)
 	}
 }
@@ -679,7 +704,7 @@ func TestShuffle(t *testing.T) {
 }
 
 func TestSkip(t *testing.T) {
-	if !slices.Equal(Skip([]int{1, 2, 3}, 1), []int{2, 3}) {
+	if !slices.Equal(Skip([]int{1, 1, 1, 2, 3}, 2), []int{1, 2, 3}) {
 		t.Fatal()
 	}
 }

@@ -103,11 +103,7 @@ func Combine[T comparable, R any](c []T, other []R) map[T]R {
 }
 
 func CombineSlice[T comparable, R any](k []T, v []R) map[T]R {
-	combined := make(map[T]R)
-	for i := range len(k) {
-		combined[k[i]] = v[i]
-	}
-	return combined
+	return Combine(k, v)
 }
 
 func CombineMap[T comparable, R any](c map[T]R, other map[T]R) map[T]R {
@@ -183,12 +179,11 @@ func Diff[T comparable](c []T, other []T) []T {
 	return diff
 }
 
-// TODO: Implement this
-func DiffAssoc[T comparable, R any](c []T, other []R) []map[T]R {
+func DiffAssoc[T comparable, R comparable](c map[T]R, other map[T]R) []map[T]R {
 	diffAssoc := make([]map[T]R, 0)
-	for _, v := range c {
-		for _, v2 := range other {
-			diffAssoc = append(diffAssoc, map[T]R{v: v2})
+	for k, v := range c {
+		if v2, ok := other[k]; ok && v != v2 {
+			diffAssoc = append(diffAssoc, map[T]R{k: v})
 		}
 	}
 	return diffAssoc
@@ -325,15 +320,7 @@ func Forget[T comparable, R any](c map[T]R, keys ...T) map[T]R {
 	return c
 }
 
-func GroupBy[T any, R comparable](c []T, fn func(T) R) map[R][]T {
-	grouped := make(map[R][]T)
-	for _, item := range c {
-		grouped[fn(item)] = append(grouped[fn(item)], item)
-	}
-	return grouped
-}
-
-func GroupByKeyValue[T comparable, R comparable](c []map[T]R, key T) map[R][]map[T]R {
+func GroupBy[T comparable, R comparable](c []map[T]R, key T) map[R][]map[T]R {
 	grouped := make(map[R][]map[T]R)
 	for _, obj := range c {
 		if value, ok := obj[key]; ok {
@@ -341,25 +328,6 @@ func GroupByKeyValue[T comparable, R comparable](c []map[T]R, key T) map[R][]map
 		}
 	}
 	return grouped
-}
-
-func HasAnyKeys[T comparable, R any](c map[T]R, keys ...T) bool {
-	for _, key := range keys {
-		if _, ok := c[key]; ok {
-			return true
-		}
-	}
-	return false
-}
-
-// implment from json
-
-func IndexOf[T comparable](c []T, item T) int {
-	return slices.Index(c, item)
-}
-
-func IsEmpty[T any](c []T) bool {
-	return len(c) == 0
 }
 
 func Has[T comparable](c []T, item T) bool {
@@ -382,6 +350,15 @@ func HasAny[T comparable](c []T, items []T) bool {
 	return false
 }
 
+func HasAnyKeys[T comparable, R any](c map[T]R, keys ...T) bool {
+	for _, key := range keys {
+		if _, ok := c[key]; ok {
+			return true
+		}
+	}
+	return false
+}
+
 func HasEvery[T comparable](c []T, items []T) bool {
 	m := make(map[T]bool)
 
@@ -398,9 +375,23 @@ func HasEvery[T comparable](c []T, items []T) bool {
 	return true
 }
 
-// func HasOne [T comparable, R comparable](c []T) bool {
+func HasOne[T comparable](c []T, items []T) bool {
+	count := 0
+	itemsMap := make(map[T]bool)
+	for _, item := range items {
+		itemsMap[item] = true
+	}
+	for _, item := range c {
+		if itemsMap[item] {
+			count++
+		}
+	}
+	return count == 1
+}
 
-// }
+func IndexOf[T comparable](c []T, item T) int {
+	return slices.Index(c, item)
+}
 
 func Intersect[T comparable](c []T, other []T) []T {
 	m := make(map[T]int)
@@ -444,6 +435,10 @@ func IntersectByKeys[T comparable, R any](c map[T]R, other map[T]R) map[T]R {
 	}
 
 	return intersectByKeys
+}
+
+func IsEmpty[T any](c []T) bool {
+	return len(c) == 0
 }
 
 func KeyBy[T comparable, R comparable](c []map[T]R, key T) map[R][]map[T]R {
@@ -523,20 +518,6 @@ func Max[T cmp.Ordered](c []T) *T {
 	return &max
 }
 
-func Min[T cmp.Ordered](c []T) *T {
-	if len(c) == 0 {
-		return nil
-	}
-	min := c[0]
-	for _, item := range c {
-		if item < min {
-			min = item
-		}
-	}
-
-	return &min
-}
-
 func Mode[T cmp.Ordered](c []T) *T {
 	if len(c) == 0 {
 		return nil
@@ -554,6 +535,20 @@ func Mode[T cmp.Ordered](c []T) *T {
 	}
 
 	return &mode
+}
+
+func Min[T cmp.Ordered](c []T) *T {
+	if len(c) == 0 {
+		return nil
+	}
+	min := c[0]
+	for _, item := range c {
+		if item < min {
+			min = item
+		}
+	}
+
+	return &min
 }
 
 func Multiply[T any](c []T, multiplier int) []T {
@@ -626,11 +621,11 @@ func PadRight[T any](c []T, length int, value T) []T {
 	return c
 }
 
-func Partition[T any](c []T, fn func(T) bool) ([]T, []T) {
+func Partition[T any](c []T, fn func(int, T) bool) ([]T, []T) {
 	partitioned := make([]T, 0)
 	other := make([]T, 0)
-	for _, v := range c {
-		if fn(v) {
+	for i, v := range c {
+		if fn(i, v) {
 			partitioned = append(partitioned, v)
 		} else {
 			other = append(other, v)
@@ -700,11 +695,31 @@ func Reduce[T any, R any](c []T, fn func(R, T) R, initial R) R {
 	return reduced
 }
 
+func ReduceWithIndex[T any, R any](c []T, fn func(R, T, int) R, initial R) R {
+	reduced := initial
+	for i, v := range c {
+		reduced = fn(reduced, v, i)
+	}
+	return reduced
+}
+
 func Reject[T any](c []T, fn func(T) bool) []T {
 	rejected := make([]T, 0)
 
 	for _, v := range c {
 		if !fn(v) {
+			rejected = append(rejected, v)
+		}
+	}
+
+	return rejected
+}
+
+func RejectWithIndex[T any](c []T, fn func(T, int) bool) []T {
+	rejected := make([]T, 0)
+
+	for i, v := range c {
+		if !fn(v, i) {
 			rejected = append(rejected, v)
 		}
 	}
