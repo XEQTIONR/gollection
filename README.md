@@ -2,11 +2,15 @@
 
 
 # Gollection
+<a href="https://github.com/XEQTIONR/gollection/actions/workflows/test.yaml"><img src="https://github.com/XEQTIONR/gollection/actions/workflows/test.yaml/badge.svg" alt="Go Tests" style="max-width: 100%;"></a>
+<a href="https://github.com/XEQTIONR/gollection/?tab=MIT-1-ov-file#readme"><img src="https://img.shields.io/badge/License-MIT-green.svg" alt="License" style="max-width: 100%;"></a>
+<img src="https://img.shields.io/github/last-commit/XEQTIONR/gollection" alt="Last Commit" style="max-width: 100%;">
+
 
 
 ### About Gollection
 
-Gollection is a simple library that provides a convenient wrapper for working with collections of data. The word "Gollection" is a [portmanteau](https://en.wikipedia.org/wiki/Portmanteau) of the words "go" and "collection".
+Gollection is a simple library that provides a convenient helpers for working with collections of data. The word "Gollection" is a [portmanteau](https://en.wikipedia.org/wiki/Portmanteau) of the words "go" and "collection".
 
 #### What is a collection?
 A collection is a container of related data such as a slice or a map.
@@ -335,19 +339,19 @@ gollection.HasAny([]int{1, 2, 3}, []int{0, 3})
 // true
 ```
 
-### HasAnyKeys
+#### HasAnyKeys
 ```go
 gollection.HasAnyKeys(map[string]int{"a": 1}, "a", "b")
 // true
 ```
 
-### HasEvery
+#### HasEvery
 ```go
 gollection.HasEvery([]int{1, 2, 3}, []int{1, 2})
 // true
 ```
 
-### HasOne
+#### HasOne
 ```go
 gollection.HasOne([]int{1, 4, 5}, []int{1, 2, 3})
 // true
@@ -355,7 +359,7 @@ gollection.HasOne([]int{1, 2, 5}, []int{1, 2, 3})
 // false
 ```
 
-### IndexOf
+#### IndexOf
 ```go
 gollection.IndexOf([]string{"a", "b", "c"}, "b")
 // 1
@@ -363,37 +367,37 @@ gollection.IndexOf([]string{"a", "b", "c"}, "d")
 // -1
 ```
 
-### IsEmpty
+#### IsEmpty
 ```go
 gollection.IsEmpty([]string{"a", "b", "c"})
 // false
 ```
 
-### Intersect
+#### Intersect
 ```go
 gollection.Intersect([]int{1, 1, 2}, []int{1, 2, 2})
 // [1, 2]
 ```
 
-### IntersectAssoc
+#### IntersectAssoc
 ```go
 gollection.IntersectAssoc(map[string]int{"a": 1, "b": 2}, map[string]int{"a": 1, "b": 9})
 // {"a": 1}
 ```
 
-### IntersectByKeys
+#### IntersectByKeys
 ```go
 gollection.IntersectByKeys(map[string]int{"a": 1, "b": 2}, map[string]int{"b": 9})
 // {"b": 2}
 ```
 
-### KeyBy
+#### KeyBy
 ```go
 gollection.KeyBy([]map[string]int{{"k": 1}, {"k": 2, "a": 3}, {"k": 2, "b": 4}}, "k")
 // {1: [{"k": 1}], 2: [{"k": 2, "a": 3}, {"k": 2, "b": 4}]}
 ```
 
-### Last
+#### Last
 ```go
 gollection.Last([]int{1, 2, 3, 4}, func(n, i int) bool { return n >= 2 })
 // 4
@@ -401,7 +405,7 @@ gollection.Last([]int{1, 2, 3, 4}, func(n, i int) bool { return n > 4 })
 // nil
 ```
 
-### LastOr
+#### LastOr
 ```go
 gollection.LastOr([]int{1, 2, 3, 4}, func(n, i int) bool { return n >= 4 }, 99)
 // 4
@@ -409,7 +413,7 @@ gollection.LastOr([]int{1, 2, 3, 4}, func(n, i int) bool { return n > 4 }, 99)
 // 99
 ```
 
-### LastOrFail
+#### LastOrFail
 ```go
 gollection.LastOrFail([]int{1, 2, 3, 4}, func(n, i int) bool { return n >= 4 })
 // 4
@@ -417,7 +421,7 @@ gollection.LastOrFail([]int{1, 2, 3, 4}, func(n, i int) bool { return n > 4 })
 // panic
 ```
 
-### LastWhere
+#### LastWhere
 ```go
 gollection.LastWhere([]map[string]any{{"n": 1}, {"n": 2}, {"n": 2}}, "n", 2)
 // {"n": 2}
@@ -425,7 +429,7 @@ gollection.LastWhere([]map[string]any{{"n": 1}, {"n": 2}, {"n": 2}}, "n", 3)
 // nil
 ```
 
-### Length
+#### Length
 alias for `Count`
 
 ### Map
@@ -435,61 +439,61 @@ gollection.Map([]int{1, 2}, func(n int) string { return string(rune('0' + n)) })
 ```
 
 
-### Max
+#### Max
 ```go
 gollection.Max([]int{1, 3, 2, 5, 4})
 // 5
 ```
 
-### Mode
+#### Mode
 ```go
 gollection.Mode([]int{1, 2, 1, 2, 3, 2})
 // ["1", "2"]
 ```
 
-### Min
+#### Min
 ```go
 gollection.Min([]int{3, 2, 5, 4})
 // 2
 ```
 
-### Multiply
+#### Multiply
 ```go
 gollection.Multiply([]int{1, 2}, 3)
 // [1, 1, 1, 2, 2, 2]
 ```
 
-### Nth
+#### Nth
 ```go
 gollection.Nth([]string{"a", "b"}, 1)
 // "b"
 ```
 
-### NthFromLast
+#### NthFromLast
 ```go
 gollection.NthFromLast([]string{"a", "b"}, 1)
 // "a"
 ```
 
-### Only
+#### Only
 ```go
 gollection.Only([]map[string]int{{"a": 1, "b": 2}, {"a": 3, "b": 4, "c": 5}}, "a", "b")
 // [{"a": 1, "b": 2}, {"a": 3, "b": 4}]
 ```
 
-### PadLeft
+#### PadLeft
 ```go
 gollection.PadLeft([]int{1}, 2, 0)
 // [0, 0, 1]
 ```
 
-### PadRight
+#### PadRight
 ```go
 gollection.PadRight([]int{1}, 4, 3)
 // [1, 3, 3, 3, 3]
 ```
 
-### Partition
+#### Partition
 ```go
 gollection.Partition([]int{1, 2, 3, 4}, func(i, n int) bool { return n%2 == 0 })
 // [[2,4], [1,3]]
@@ -498,31 +502,31 @@ gollection.Partition([]int{1, 2, 3, 4}, func(i, n int) bool { return i < 2 })
 ```
 
 
-### Percentage
+#### Percentage
 ```go
 gollection.Percentage([]int{1, 2, 3, 4}, func(n int) bool { return n%2 == 0 })
 // 50
 ```
 
-### Prepend
+#### Prepend
 ```go
 gollection.Prepend([]int{3, 4}, 1, 2)
 // [1, 2, 3, 4]
 ```
 
-### Push
+#### Push
 ```go
 gollection.Push([]int{3, 4}, 1)
 // [3, 4, 1]
 ```
 
-### Pop
+#### Pop
 ```go
 gollection.Pop([]int{3, 4, 1})
 // 1, [3, 4]
 ```
 
-### Random
+#### Random
 ```go
 gollection.Random([]int{1, 2, 3, 4, 5})
 // 4, nil
@@ -530,7 +534,7 @@ gollection.Random([]int{})
 // nil, Error
 ```
 
-### Range
+#### Range
 ```go
 gollection.Range([]int{0, 1, 2, 3, 4, 5}, 2, 4)
 // [2, 3], nil
@@ -538,86 +542,86 @@ gollection.Range([]int{0, 1, 2, 3, 4, 5}, 4, 2)
 // nil, Error
 ```
 
-### Reduce
+#### Reduce
 ```go
 gollection.Reduce([]int{1, 2, 3}, func(acc, n int) int { return acc + n }, 0)
 // 6
 ```
 
-### ReduceWithIndex
+#### ReduceWithIndex
 ```go
 gollection.ReduceWithIndex([]int{1, 2, 3}, func(acc, n, i int) int { return acc + i }, 0)
 // 3
 ```
 
-### Reject
+#### Reject
 ```go
 gollection.Reject([]int{1, 2, 3}, func(n int) bool { return n == 2 })
 // [1, 3]
 ```
 
-### RejectWithIndex
+#### RejectWithIndex
 ```go
 gollection.RejectWithIndex([]int{1, 2, 3}, func(n, i int) bool { return i == 2 })
 // [1, 2]
 ```
 
-### Replace
+#### Replace
 ```go
 gollection.Replace([]int{1, 2, 3, 4, 5}, map[int]int{1: 9, 3: 10})
 // [1, 9, 3, 10, 5]
 ```
 
-### Reverse
+#### Reverse
 ```go
 gollection.Reverse([]int{1, 2, 3, 4, 5})
 // [5, 4, 3, 2, 1]
 ```
 
-### ReverseMap
+#### ReverseMap
 ```go
 gollection.ReverseMap(map[int]string{1: "x", 3: "y"})
 // {"x": 1, "y": 3}
 ```
 
-### Select
+#### Select
 ```go
 gollection.Select([]map[string]any{{"a": 1, "b": "x", "c": 2.0}, {"a": 2, "b": "y", "c": 1.5}}, "a", "b")
 // [{"a": 1, "b": "x"}, {"a": 2, "b": "y"}]
 ```
 
 
-### Shuffle
+#### Shuffle
 ```go
 gollection.Shuffle([]int{1, 2, 3, 4, 5})
 // [4, 1, 3, 5, 2]
 ```
 
-### Skip
+#### Skip
 ```go
 gollection.Skip([]int{1, 1, 1, 2, 3}, 2)
 // [1, 2, 3]
 ```
 
-### SkipUntil
+#### SkipUntil
 ```go
 gollection.SkipUntil([]int{1, 2, 3}, func(n int) bool { return n == 2 })
 // [2, 3]
 ```
 
-### SkipWhile
+#### SkipWhile
 ```go
 gollection.SkipWhile([]int{1, 2, 1}, func(n int) bool { return n < 2 })
 // [2, 1]
 ```
 
-### Slice
+#### Slice
 ```go
 gollection.Slice([]int{1, 2, 3, 4, 5}, 1, 3)
 // [2, 3]
 ```
 
-### Sort
+#### Sort
 ```go
 gollection.Sort([]int{3, 1, 2}, gollection.SortDirectionAsc)
 // [1, 2, 3]
@@ -625,122 +629,124 @@ gollection.Sort([]int{1, 3, 2}, gollection.SortDirectionDesc)
 // [3, 2, 1]
 ```
 
-### SortAsc
+#### SortAsc
 ```go
 gollection.SortAsc([]int{2, 1})
 // [1, 2]
 ```
 
-### SortBy
+#### SortBy
 ```go
 gollection.SortBy([]map[string]int{{"v": 2}, {"v": 1}}, "v", gollection.SortDirectionAsc)
 // [{"v": 1}, {"v": 2}]
 ```
 
-### SortByAsc
+#### SortByAsc
 ```go
 gollection.SortByAsc([]map[string]int{{"v": 3}, {"v": 1}}, "v")
 // [{"v": 1}, {"v": 3}]
 ```
 
-### SortByDesc
+#### SortByDesc
 ```go
 gollection.SortByDesc([]map[string]int{{"v": 1}, {"v": 3}}, "v")
 // [{"v": 3}, {"v": 1}]
 ```
 
-### SortDesc
+#### SortDesc
 ```go
 gollection.SortDesc([]int{1, 3, 2})
 // [3, 2, 1]
 ```
 
-### Splice
+#### Splice
 ```go
 gollection.Splice([]int{1, 2, 3, 4}, 1, 2, 9, 9)
 // [1, 9, 9, 4]
 ```
 
-### Split
+#### Split
 ```go
 gollection.Split([]int{1, 2, 3, 4, 5}, 2)
 // [[1, 2], [3, 4], [5]]
 ```
 
-### SplitInto
+#### SplitInto
 ```go
 gollection.SplitInto([]int{1, 2, 3, 4, 5, 6}, 2)
 // [[1, 2, 3], [4, 5, 6]]
 ```
 
-### Take
+#### Take
 ```go
 gollection.Take([]int{1, 2, 3}, 2)
 // [1, 2]
 ```
 
-### TakeUntil
+#### TakeUntil
 ```go
 gollection.TakeUntil([]int{1, 2, 3}, func(n int) bool { return n == 2 })
 // [1]
 ```
 
-### TakeWhile
+#### TakeWhile
 ```go
 gollection.TakeWhile([]int{1, 2, 3}, func(n int) bool { return n < 3 })
 // [1, 2]
 ```
 
-### Union
+#### Union
 ```go
 gollection.Union([]int{1, 2}, []int{2, 3})
 // [1, 2, 3]
 ```
 
-### Unique
+#### Unique
 ```go
 gollection.Unique([]int{1, 1, 2, 3, 3})
 // [2]
 ```
 
-### Where
+#### Where
 ```go
 gollection.Where([]map[string]int{{"k": 1}, {"k": 2}}, "k", 2)
 // [{"k": 2}]
 ```
 
-### WhereBetween
+#### WhereBetween
 ```go
 gollection.WhereBetween([]map[string]int{{"x": 2}, {"x": 5}, {"x": 10}}, "x", 2, 5)
 // [{"x": 2}, {"x": 5}]
 ```
 
-### WhereIn
+#### WhereIn
 ```go
 gollection.WhereIn([]map[string]int{{"t": 1}, {"t": 9}}, "t", []int{9})
 // [{"t": 9}]
 ```
 
-### WhereNot
+#### WhereNot
 ```go
 gollection.WhereNot([]map[string]int{{"t": 1}, {"t": 2}}, "t", 1)
 // [{"t": 2}]
 ```
 
-### WhereNotBetween
+#### WhereNotBetween
 ```go
 gollection.WhereNotBetween([]map[string]int{{"x": 1}, {"x": 4}, {"x": 7}}, "x", 3, 6)
 // [{"x": 1}, {"x": 7}]
 ```
 
-### WhereNotIn
+#### WhereNotIn
 ```go
 gollection.WhereNotIn([]map[string]int{{"t": 1}, {"t": 2}}, "t", []int{1})
 // [{"t": 2}]
 ```
 
-### Zip
+#### Zip
 ```go
 gollection.Zip([]int{1, 2}, []string{"a", "b"})
 // [[1, "a"], [2, "b"]]
 ```
+
+_Did we miss something? Create an issue or a PR._
