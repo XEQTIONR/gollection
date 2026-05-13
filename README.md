@@ -4,6 +4,9 @@
 # Gollection
 <a href="https://github.com/XEQTIONR/gollection/actions/workflows/test.yaml"><img src="https://github.com/XEQTIONR/gollection/actions/workflows/test.yaml/badge.svg" alt="Go Tests" style="max-width: 100%;"></a>
 <a href="https://github.com/XEQTIONR/gollection/?tab=MIT-1-ov-file#readme"><img src="https://img.shields.io/badge/License-MIT-green.svg" alt="License" style="max-width: 100%;"></a>
+<img src="https://img.shields.io/github/last-commit/XEQTIONR/gollection" alt="Last Commit" style="max-width: 100%;">
+
+
 
 ### About Gollection
 
@@ -745,3 +748,5 @@ gollection.WhereNotIn([]map[string]int{{"t": 1}, {"t": 2}}, "t", []int{1})
 gollection.Zip([]int{1, 2}, []string{"a", "b"})
 // [[1, "a"], [2, "b"]]
 ```
+
+_Did we miss something? Create an issue or a PR._
