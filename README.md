@@ -10,123 +10,49 @@
 
 ### About Gollection
 
-Gollection is a simple library that provides a convenient helpers for working with collections of data. The word "Gollection" is a [portmanteau](https://en.wikipedia.org/wiki/Portmanteau) of the words "go" and "collection".
+Gollection is a simple library that provides a convenient set of helpers for working with collections of data. The word "Gollection" is a [portmanteau](https://en.wikipedia.org/wiki/Portmanteau) of the words "go" and "collection".
 
 #### What is a collection?
-A collection is a container of related data such as a slice or a map.
+A collection is a container of related data such as a slice or a map. Currently, go channels are beyond the scope if this project due to their lack of flexibility. 
 
-#### What can gollection do?
+#### What can Gollection do?
 It can manipulate, partition, transform, and get stats about collections.
 
 #### But why?
 In an attempt to keep our go files small and clean.
 
-
+### Current Release
+v1.0 (Amethyst)
 
 ### Available Functions
-
-* [Append](#append)
-* [At](#at)
-* [Average](#average)
-* [Avg](#avg)
-* [Chunk](#chunk)
-* [ChunkBy](#chunkby)
-* [Collapse](#collapse)
-* [CollapseMap](#collapsemap)
-* [Combine](#combine)
-* [CombineSlice](#combineslice)
-* [CombineMap](#combinemap)
-* [Contains](#contains)
-* [ContainsKey](#containskey)
-* [Count](#count)
-* [CountBy](#countby)
-* [Counts](#counts)
-* [CrossJoin](#crossjoin)
-* [Diff](#diff)
-* [DiffAssoc](#diffassoc)
-* [DiffKeys](#diffkeys)
-* [DoesntContain](#doesntcontain)
-* [Duplicates](#duplicates)
-* [Each](#each)
-* [Every](#every)
-* [Except](#except)
-* [Filter](#filter)
-* [First](#first)
-* [FirstOr](#firstor)
-* [FirstOrFail](#firstorfail)
-* [FirstWhere](#firstwhere)
-* [Flatten](#flatten)
-* [FlattenMap](#flattenmap)
-* [Flip](#flip)
-* [Forget](#forget)
-* [GroupBy](#groupby)
-* [Has](#has)
-* [HasAny](#hasany)
-* [HasAnyKeys](#hasanykeys)
-* [HasEvery](#hasevery)
-* [HasOne](#hasone)
-* [IndexOf](#indexof)
-* [IsEmpty](#isempty)
-* [Intersect](#intersect)
-* [IntersectAssoc](#intersectassoc)
-* [IntersectByKeys](#intersectbykeys)
-* [KeyBy](#keyby)
-* [Last](#last)
-* [LastOr](#lastor)
-* [LastOrFail](#lastorfail)
-* [LastWhere](#lastwhere)
-* [Length](#length)
-* [Map](#map)
-* [Max](#max)
-* [Mode](#mode)
-* [Min](#min)
-* [Multiply](#multiply)
-* [Nth](#nth)
-* [NthFromLast](#nthfromlast)
-* [Only](#only)
-* [PadLeft](#padleft)
-* [PadRight](#padright)
-* [Partition](#partition)
-* [Percentage](#percentage)
-* [Prepend](#prepend)
-* [Push](#push)
-* [Pop](#pop)
-* [Random](#random)
-* [Range](#range)
-* [Reduce](#reduce)
-* [ReduceWithIndex](#reducewithindex)
-* [Reject](#reject)
-* [RejectWithIndex](#rejectwithindex)
-* [Replace](#replace)
-* [Reverse](#reverse)
-* [ReverseMap](#reversemap)
-* [Select](#select)
-* [Shuffle](#shuffle)
-* [Skip](#skip)
-* [SkipUntil](#skipuntil)
-* [SkipWhile](#skipwhile)
-* [Slice](#slice)
-* [Sort](#sort)
-* [SortAsc](#sortasc)
-* [SortBy](#sortby)
-* [SortByAsc](#sortbyasc)
-* [SortByDesc](#sortbydesc)
-* [SortDesc](#sortdesc)
-* [Splice](#splice)
-* [Split](#split)
-* [SplitInto](#splitinto)
-* [Take](#take)
-* [TakeUntil](#takeuntil)
-* [TakeWhile](#takewhile)
-* [Union](#union)
-* [Unique](#unique)
-* [Where](#where)
-* [WhereBetween](#wherebetween)
-* [WhereIn](#wherein)
-* [WhereNot](#wherenot)
-* [WhereNotBetween](#wherenotbetween)
-* [WhereNotIn](#wherenotin)
-* [Zip](#zip)
+|||||
+|--|---|---|--|
+| [Append](#append) | [At](#at) | [Average](#average) | [Avg](#avg) |
+| [Chunk](#chunk) | [ChunkBy](#chunkby) | [Collapse](#collapse) | [CollapseMap](#collapsemap) |
+| [Combine](#combine) | [CombineSlice](#combineslice) | [CombineMap](#combinemap) | [Contains](#contains) |
+| [ContainsKey](#containskey) | [Count](#count) | [CountBy](#countby) | [Counts](#counts) |
+| [CrossJoin](#crossjoin) | [Diff](#diff) | [DiffAssoc](#diffassoc) | [DiffKeys](#diffkeys) |
+| [DoesntContain](#doesntcontain) | [Duplicates](#duplicates) | [Each](#each) | [Every](#every) |
+| [Except](#except) | [Filter](#filter) | [First](#first) | [FirstOr](#firstor) | 
+| [FirstOrFail](#firstorfail) | [FirstWhere](#firstwhere) | [Flatten](#flatten) | [FlattenMap](#flattenmap) | 
+| [Flip](#flip) | [Forget](#forget) | [GroupBy](#groupby) | [Has](#has) |
+| [HasAny](#hasany) | [HasAnyKeys](#hasanykeys) | [HasEvery](#hasevery) | [HasOne](#hasone) |
+| [IndexOf](#indexof) | [IsEmpty](#isempty) | [Intersect](#intersect) | [IntersectAssoc](#intersectassoc) |
+| [IntersectByKeys](#intersectbykeys) | [KeyBy](#keyby) | [Last](#last) | [LastOr](#lastor) |
+| [LastOrFail](#lastorfail) | [LastWhere](#lastwhere) | [Length](#length) | [Map](#map)|
+| [Max](#max) | [Mode](#mode) | [Min](#min) | [Multiply](#multiply) |
+| [Nth](#nth) | [NthFromLast](#nthfromlast) | [Only](#only) | [PadLeft](#padleft) |
+| [PadRight](#padright) | [Partition](#partition) | [Percentage](#percentage) | [Prepend](#prepend) |
+| [Push](#push) | [Pop](#pop) | [Random](#random) | [Range](#range) |
+| [Reduce](#reduce) | [ReduceWithIndex](#reducewithindex) | [Reject](#reject) | [RejectWithIndex](#rejectwithindex) |
+| [Replace](#replace) | [Reverse](#reverse) | [ReverseMap](#reversemap) | [Select](#select) |
+| [Shuffle](#shuffle) | [Skip](#skip) | [SkipUntil](#skipuntil) | [SkipWhile](#skipwhile) |
+| [Slice](#slice) | [Sort](#sort) | [SortAsc](#sortasc) | [SortBy](#sortby) |
+| [SortByAsc](#sortbyasc) | [SortByDesc](#sortbydesc) | [SortDesc](#sortdesc) | [Splice](#splice) |
+| [Split](#split) | [SplitInto](#splitinto) | [Take](#take) | [TakeUntil](#takeuntil) |
+| [TakeWhile](#takewhile) | [Union](#union) | [Unique](#unique) | [Where](#where) |
+| [WhereBetween](#wherebetween) | [WhereIn](#wherein) | [WhereNot](#wherenot) | [WhereNotBetween](#wherenotbetween) |
+| [WhereNotIn](#wherenotin) | [Zip](#zip) |||
 
 #### Append
 ```go
